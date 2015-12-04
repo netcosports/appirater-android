@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.text.TextUtils;
 
 /*	
  * @source https://github.com/sbstrm/appirater-android
@@ -32,14 +33,16 @@ public class Appirater {
     private static final String PREF_APP_VERSION_CODE = "versioncode";
 
     public static void appLaunched(Context context) {
-        appLaunched(context, -1, -1, -1, -1);
+        appLaunched(context, -1, -1, -1, -1, null, null);
     }
 
     public static void appLaunched(Context context,
                                    int daysUntilPrompt,
                                    int launchesUntilPrompt,
                                    int eventsUntilPrompt,
-                                   int daysBeforeReminding) {
+                                   int daysBeforeReminding,
+                                   String title,
+                                   String message) {
         int appiratorDaysUntilPrompt = daysUntilPrompt;
         int appiratorLaunchesUntilPrompt = launchesUntilPrompt;
         int appiratorEventsUntilPrompt = eventsUntilPrompt;
@@ -65,7 +68,7 @@ public class Appirater {
         SharedPreferences.Editor editor = prefs.edit();
 
         if (testMode) {
-            showRateDialog(context, editor);
+            showRateDialog(context, editor, title, message);
             return;
         }
 
@@ -107,11 +110,11 @@ public class Appirater {
             long millisecondsToWait = appiratorDaysUntilPrompt * 24 * 60 * 60 * 1000L;
             if (System.currentTimeMillis() >= (date_firstLaunch + millisecondsToWait) || event_count >= appiratorEventsUntilPrompt) {
                 if (date_reminder_pressed == 0) {
-                    showRateDialog(context, editor);
+                    showRateDialog(context, editor, title, message);
                 } else {
                     long remindMillisecondsToWait = appiratorDaysBeforeReminding * 24 * 60 * 60 * 1000L;
                     if (System.currentTimeMillis() >= (remindMillisecondsToWait + date_reminder_pressed)) {
-                        showRateDialog(context, editor);
+                        showRateDialog(context, editor, title, message);
                     }
                 }
             }
@@ -147,14 +150,21 @@ public class Appirater {
     }
 
     @SuppressLint("NewApi")
-    private static void showRateDialog(final Context mContext, final SharedPreferences.Editor editor) {
+    private static void showRateDialog(final Context mContext, final SharedPreferences.Editor editor, String title, String message) {
         String appName = mContext.getString(R.string.appirator_app_title);
 
         AlertDialog alertDialog = new AlertDialog.Builder(mContext).create();
 
-        alertDialog.setTitle(String.format(mContext.getString(R.string.rate_title), appName));
-
-        alertDialog.setMessage(String.format(mContext.getString(R.string.rate_message), appName));
+        if (!TextUtils.isEmpty(title)) {
+            alertDialog.setTitle(title);
+        } else {
+            alertDialog.setTitle(String.format(mContext.getString(R.string.rate_title), appName));
+        }
+        if (!TextUtils.isEmpty(message)) {
+            alertDialog.setMessage(message);
+        } else {
+            alertDialog.setMessage(String.format(mContext.getString(R.string.rate_message), appName));
+        }
 
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, String.format(mContext.getString(R.string.rate), appName), new DialogInterface.OnClickListener() {
 
