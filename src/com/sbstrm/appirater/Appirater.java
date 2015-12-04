@@ -164,16 +164,16 @@ public class Appirater {
             }
         });
 
-        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, mContext.getString(R.string.rate_later), new DialogInterface.OnClickListener() {
-
-            public void onClick(DialogInterface dialog, int id) {
-                if (editor != null) {
-                    editor.putLong(PREF_DATE_REMINDER_PRESSED, System.currentTimeMillis());
-                    editor.commit();
-                }
-                dialog.dismiss();
-            }
-        });
+//        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, mContext.getString(R.string.rate_later), new DialogInterface.OnClickListener() {
+//
+//            public void onClick(DialogInterface dialog, int id) {
+//                if (editor != null) {
+//                    editor.putLong(PREF_DATE_REMINDER_PRESSED, System.currentTimeMillis());
+//                    editor.commit();
+//                }
+//                dialog.dismiss();
+//            }
+//        });
 
         alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, mContext.getString(R.string.rate_cancel), new DialogInterface.OnClickListener() {
 
