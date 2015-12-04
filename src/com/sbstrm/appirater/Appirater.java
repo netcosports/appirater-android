@@ -1,21 +1,12 @@
 package com.sbstrm.appirater;
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.util.DisplayMetrics;
-import android.view.Display;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 /*	
  * @source https://github.com/sbstrm/appirater-android
@@ -158,41 +149,24 @@ public class Appirater {
     @SuppressLint("NewApi")
     private static void showRateDialog(final Context mContext, final SharedPreferences.Editor editor) {
         String appName = mContext.getString(R.string.appirator_app_title);
-        final Dialog dialog = new Dialog(mContext);
 
-        if (android.os.Build.VERSION.RELEASE.startsWith("1.") || android.os.Build.VERSION.RELEASE.startsWith("2.0") || android.os.Build.VERSION.RELEASE.startsWith("2.1")) {
-            //No dialog title on pre-froyo devices
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        } else if (mContext.getResources().getDisplayMetrics().densityDpi == DisplayMetrics.DENSITY_LOW || mContext.getResources().getDisplayMetrics().densityDpi == DisplayMetrics.DENSITY_MEDIUM) {
-            Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-            int rotation = display.getRotation();
-            if (rotation == 90 || rotation == 270) {
-                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            } else {
-                dialog.setTitle(String.format(mContext.getString(R.string.rate_title), appName));
-            }
-        } else {
-            dialog.setTitle(String.format(mContext.getString(R.string.rate_title), appName));
-        }
+        AlertDialog alertDialog = new AlertDialog.Builder(mContext).create();
 
-        LinearLayout layout = (LinearLayout) LayoutInflater.from(mContext).inflate(R.layout.appirater, null);
+        alertDialog.setTitle(String.format(mContext.getString(R.string.rate_title), appName));
 
-        TextView tv = (TextView) layout.findViewById(R.id.message);
-        tv.setText(String.format(mContext.getString(R.string.rate_message), appName));
+        alertDialog.setMessage(String.format(mContext.getString(R.string.rate_message), appName));
 
-        Button rateButton = (Button) layout.findViewById(R.id.rate);
-        rateButton.setText(String.format(mContext.getString(R.string.rate), appName));
-        rateButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, String.format(mContext.getString(R.string.rate), appName), new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int id) {
                 rateApp(mContext, editor);
                 dialog.dismiss();
             }
         });
 
-        Button rateLaterButton = (Button) layout.findViewById(R.id.rateLater);
-        rateLaterButton.setText(mContext.getString(R.string.rate_later));
-        rateLaterButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, mContext.getString(R.string.rate_later), new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int id) {
                 if (editor != null) {
                     editor.putLong(PREF_DATE_REMINDER_PRESSED, System.currentTimeMillis());
                     editor.commit();
@@ -201,10 +175,9 @@ public class Appirater {
             }
         });
 
-        Button cancelButton = (Button) layout.findViewById(R.id.cancel);
-        cancelButton.setText(mContext.getString(R.string.rate_cancel));
-        cancelButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, mContext.getString(R.string.rate_cancel), new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int id) {
                 if (editor != null) {
                     editor.putBoolean(PREF_DONT_SHOW, true);
                     editor.commit();
@@ -213,7 +186,6 @@ public class Appirater {
             }
         });
 
-        dialog.setContentView(layout);
-        dialog.show();
+        alertDialog.show();
     }
 }
